@@ -11,7 +11,15 @@ import {
     Settings,
     LogOut,
     MessageSquare,
-    Shield
+    Shield,
+    BarChart3,
+    Handshake,
+    Coins,
+    Plug,
+    Bell,
+    Landmark,
+    FlaskConical,
+    Calculator
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -27,14 +35,34 @@ const menuItems = [
         icon: CreditCard,
     },
     {
+        title: "Banka Modülü",
+        href: "/banking",
+        icon: Landmark,
+    },
+    {
         title: "Müşteriler",
         href: "/customers",
         icon: Users,
     },
     {
+        title: "Kontörler",
+        href: "/credits",
+        icon: Coins,
+    },
+    {
+        title: "Entegrasyonlar",
+        href: "/integrations",
+        icon: Plug,
+    },
+    {
         title: "Risk & Otomasyon",
         href: "/risk",
         icon: ShieldAlert,
+    },
+    {
+        title: "A/B Testi",
+        href: "/experiments",
+        icon: FlaskConical,
     },
     {
         title: "Destek",
@@ -47,9 +75,29 @@ const menuItems = [
         icon: Settings,
     },
     {
+        title: "Raporlar",
+        href: "/reports",
+        icon: BarChart3,
+    },
+    {
+        title: "Maliyet Analizi",
+        href: "/costs",
+        icon: Calculator,
+    },
+    {
+        title: "Partner Portal",
+        href: "/partners",
+        icon: Handshake,
+    },
+    {
         title: "Geri Bildirim",
         href: "/feedback",
         icon: MessageSquare,
+    },
+    {
+        title: "Bildirimler",
+        href: "/notifications",
+        icon: Bell,
     },
     {
         title: "Admin",

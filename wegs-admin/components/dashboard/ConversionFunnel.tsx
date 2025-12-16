@@ -1,76 +1,178 @@
 "use client";
 
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
-import { ArrowRight } from "lucide-react";
+import { TrendingUp, TrendingDown, ArrowRight, Users, Target, CreditCard, Star, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-const data = [
-    { name: "Web Ziyaretçisi", value: 12500, drop: 0 },
-    { name: "Kayıtlı Kullanıcı", value: 4500, drop: 64 },
-    { name: "Aktif Deneme", value: 3200, drop: 28 },
-    { name: "Ödeme Yapan", value: 1800, drop: 43 },
-    { name: "Sadık Müşteri", value: 950, drop: 47 },
+const funnelData = [
+    {
+        name: "Web Ziyaretçisi",
+        value: 12500,
+        conversionRate: 100,
+        icon: "🌐",
+        color: "from-slate-400 to-slate-500",
+        bgColor: "bg-slate-50",
+        textColor: "text-slate-700"
+    },
+    {
+        name: "Kayıtlı Kullanıcı",
+        value: 4500,
+        conversionRate: 36,
+        icon: "📝",
+        color: "from-blue-400 to-blue-500",
+        bgColor: "bg-blue-50",
+        textColor: "text-blue-700"
+    },
+    {
+        name: "Aktif Deneme",
+        value: 3200,
+        conversionRate: 71,
+        icon: "🚀",
+        color: "from-indigo-400 to-indigo-500",
+        bgColor: "bg-indigo-50",
+        textColor: "text-indigo-700"
+    },
+    {
+        name: "Ödeme Yapan",
+        value: 1800,
+        conversionRate: 56,
+        icon: "💳",
+        color: "from-purple-400 to-purple-500",
+        bgColor: "bg-purple-50",
+        textColor: "text-purple-700"
+    },
+    {
+        name: "Sadık Müşteri",
+        value: 950,
+        conversionRate: 53,
+        icon: "⭐",
+        color: "from-amber-400 to-amber-500",
+        bgColor: "bg-amber-50",
+        textColor: "text-amber-700"
+    },
 ];
 
-const colors = ["#94a3b8", "#64748b", "#3b82f6", "#2563eb", "#1e40af"];
+const insights = [
+    { label: "Toplam Dönüşüm", value: "7.6%", trend: "up", change: "+0.8%" },
+    { label: "Ort. Süre", value: "12 gün", trend: "down", change: "-2 gün" },
+    { label: "Bu Ay Yeni", value: "128", trend: "up", change: "+23%" },
+];
 
 export function ConversionFunnel() {
+    const maxValue = funnelData[0].value;
+
     return (
-        <div className="rounded-xl bg-white p-6 shadow-sm border border-gray-50 ring-0 dark:bg-gray-800 dark:border-gray-700">
-            <h3 className="text-base font-semibold leading-7 text-gray-900 dark:text-white">Dönüşüm Hunisi</h3>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Ziyaretçiden sadık müşteriye dönüşüm yolculuğu.</p>
-
-            <div className="mt-6 flex flex-col gap-6 lg:flex-row">
-                {/* Chart Side */}
-                <div className="h-[300px] w-full lg:w-2/3">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart
-                            data={data}
-                            layout="vertical"
-                            margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
-                        >
-                            <XAxis type="number" hide />
-                            <YAxis
-                                dataKey="name"
-                                type="category"
-                                axisLine={false}
-                                tickLine={false}
-                                width={120}
-                                tick={{ fontSize: 12, fill: '#64748b' }}
-                            />
-                            <Tooltip
-                                cursor={{ fill: 'transparent' }}
-                                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                            />
-                            <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={32}>
-                                {data.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={colors[index]} />
-                                ))}
-                            </Bar>
-                        </BarChart>
-                    </ResponsiveContainer>
+        <div className="rounded-xl bg-white p-6 shadow-sm border border-gray-100">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+                <div>
+                    <h3 className="text-lg font-semibold text-gray-900">Dönüşüm Hunisi</h3>
+                    <p className="text-sm text-gray-500">Ziyaretçiden sadık müşteriye dönüşüm yolculuğu</p>
                 </div>
+                <div className="flex gap-2">
+                    {insights.map((insight, idx) => (
+                        <div key={idx} className="px-3 py-2 bg-gray-50 rounded-lg border border-gray-100">
+                            <p className="text-xs text-gray-500">{insight.label}</p>
+                            <div className="flex items-center gap-1">
+                                <span className="text-sm font-bold text-gray-900">{insight.value}</span>
+                                <span className={cn(
+                                    "text-xs font-medium flex items-center",
+                                    insight.trend === "up" ? "text-green-600" : "text-blue-600"
+                                )}>
+                                    {insight.trend === "up" ? <TrendingUp className="h-3 w-3 mr-0.5" /> : <TrendingDown className="h-3 w-3 mr-0.5" />}
+                                    {insight.change}
+                                </span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
 
-                {/* Breakdown Side */}
-                <div className="flex w-full flex-col justify-center gap-4 lg:w-1/3">
-                    {data.map((step, idx) => (
-                        <div key={idx} className="relative flex items-center justify-between rounded-lg border border-transparent bg-gray-50 p-3 dark:bg-gray-700/50 dark:border-gray-600">
-                            <div className="flex items-center gap-3">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-xs font-bold text-gray-600 shadow-sm dark:bg-gray-600 dark:text-gray-200">
-                                    {idx + 1}
+            {/* Visual Funnel */}
+            <div className="space-y-3">
+                {funnelData.map((step, idx) => {
+                    const widthPercent = (step.value / maxValue) * 100;
+                    const isLast = idx === funnelData.length - 1;
+
+                    return (
+                        <div key={idx} className="relative group">
+                            {/* Step Row */}
+                            <div className="flex items-center gap-4">
+                                {/* Step Number */}
+                                <div className={cn(
+                                    "flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-sm",
+                                    step.bgColor
+                                )}>
+                                    {step.icon}
                                 </div>
-                                <div className="flex flex-col">
-                                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400">{step.name}</span>
-                                    <span className="text-sm font-bold text-gray-900 dark:text-white">{step.value.toLocaleString('tr-TR')}</span>
+
+                                {/* Progress Bar Container */}
+                                <div className="flex-1 relative">
+                                    <div className="h-14 bg-gray-50 rounded-xl overflow-hidden relative">
+                                        {/* Progress Bar */}
+                                        <div
+                                            className={cn(
+                                                "h-full bg-gradient-to-r rounded-xl transition-all duration-500 flex items-center justify-between px-4",
+                                                step.color
+                                            )}
+                                            style={{ width: `${widthPercent}%` }}
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-white font-semibold text-sm truncate">{step.name}</span>
+                                            </div>
+                                            <span className="text-white font-bold text-lg">{step.value.toLocaleString('tr-TR')}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Conversion Rate */}
+                                <div className="flex-shrink-0 w-24 text-right">
+                                    {idx > 0 ? (
+                                        <div className="flex flex-col items-end">
+                                            <span className={cn(
+                                                "text-lg font-bold",
+                                                step.conversionRate >= 50 ? "text-green-600" : step.conversionRate >= 30 ? "text-amber-600" : "text-red-500"
+                                            )}>
+                                                {step.conversionRate}%
+                                            </span>
+                                            <span className="text-xs text-gray-400">önceki adımdan</span>
+                                        </div>
+                                    ) : (
+                                        <span className="text-sm text-gray-400">Başlangıç</span>
+                                    )}
                                 </div>
                             </div>
 
-                            {idx > 0 && (
-                                <div className="flex items-center text-xs font-medium text-red-500 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded">
-                                    -{step.drop}%
+                            {/* Connector Arrow */}
+                            {!isLast && (
+                                <div className="absolute left-5 top-14 h-3 flex items-center justify-center">
+                                    <div className="w-0.5 h-full bg-gray-200" />
                                 </div>
                             )}
                         </div>
-                    ))}
+                    );
+                })}
+            </div>
+
+            {/* Bottom Summary */}
+            <div className="mt-6 pt-4 border-t border-gray-100">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full bg-gradient-to-r from-green-400 to-green-500" />
+                            <span className="text-xs text-gray-500">≥50% dönüşüm</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full bg-gradient-to-r from-amber-400 to-amber-500" />
+                            <span className="text-xs text-gray-500">30-50% dönüşüm</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full bg-gradient-to-r from-red-400 to-red-500" />
+                            <span className="text-xs text-gray-500">&lt;30% dönüşüm</span>
+                        </div>
+                    </div>
+                    <button className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1">
+                        Detaylı Analiz <ChevronRight className="h-4 w-4" />
+                    </button>
                 </div>
             </div>
         </div>

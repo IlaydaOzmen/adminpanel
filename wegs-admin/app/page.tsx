@@ -79,18 +79,29 @@ export default function Home() {
       <ConversionFunnel />
 
       {/* Main Content Grid */}
+      {/* Row 1: User Activity + Segmentation (same height) */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Left Column: Charts */}
-        <div className="flex flex-col gap-6 lg:col-span-2">
+        <div className="lg:col-span-2">
           <UserActivityChart datePeriod={datePeriod} />
+        </div>
+        <div className="lg:col-span-1">
+          <SegmentationPieChart />
+        </div>
+      </div>
+
+      {/* Row 2: Integration + Opportunity + Recent Users */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 mt-6">
+        <div className="lg:col-span-1">
           <IntegrationChart />
+        </div>
+        <div className="lg:col-span-1">
           <OpportunityList />
         </div>
-        <div className="flex flex-col gap-6 lg:col-span-1">
-          <SegmentationPieChart />
+        <div className="lg:col-span-1">
           <RecentUsersTable />
         </div>
       </div>
     </PageContainer>
   );
 }
+

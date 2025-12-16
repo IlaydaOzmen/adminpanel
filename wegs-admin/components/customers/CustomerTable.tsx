@@ -16,7 +16,15 @@ import {
     Diamond,
     Rocket,
     ShoppingBag,
-    Calculator
+    Calculator,
+    Eye,
+    Edit,
+    Package,
+    X,
+    ArrowRight,
+    Zap,
+    Star,
+    Crown
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -64,10 +72,41 @@ const customers: Customer[] = [
     },
 ];
 
+const packageConfig = {
+    Starter: {
+        icon: Zap,
+        color: "gray",
+        price: "₺499/ay",
+        features: ["5 Kullanıcı", "Temel Raporlama", "E-posta Desteği"]
+    },
+    Business: {
+        icon: Star,
+        color: "blue",
+        price: "₺999/ay",
+        features: ["15 Kullanıcı", "Gelişmiş Raporlama", "Öncelikli Destek", "API Erişimi"]
+    },
+    Enterprise: {
+        icon: Crown,
+        color: "purple",
+        price: "₺2499/ay",
+        features: ["Sınırsız Kullanıcı", "Özel Raporlama", "7/24 Destek", "Tam API Erişimi", "Özel Entegrasyonlar"]
+    }
+};
+
 export function CustomerTable() {
     const router = useRouter();
     const [filter, setFilter] = useState("all");
     const [searchTerm, setSearchTerm] = useState("");
+    const [isPackageModalOpen, setIsPackageModalOpen] = useState(false);
+    const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+    const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+    const [quickViewCustomer, setQuickViewCustomer] = useState<Customer | null>(null);
+    const [selectedPackage, setSelectedPackage] = useState<"Starter" | "Business" | "Enterprise" | null>(null);
+
+    const handleQuickView = (customer: Customer) => {
+        setQuickViewCustomer(customer);
+        setIsQuickViewOpen(true);
+    };
 
     const filteredCustomers = customers.filter(customer => {
         const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -82,6 +121,22 @@ export function CustomerTable() {
 
         return matchesSearch;
     });
+
+    const handlePackageChange = (customer: Customer) => {
+        setSelectedCustomer(customer);
+        setSelectedPackage(customer.package);
+        setIsPackageModalOpen(true);
+    };
+
+    const handleConfirmPackageChange = () => {
+        if (selectedCustomer && selectedPackage) {
+            console.log("Paket değişikliği:", selectedCustomer.name, selectedCustomer.package, "->", selectedPackage);
+            alert(`${selectedCustomer.name} müşterisinin paketi ${selectedPackage} olarak değiştirildi! (Demo)`);
+            setIsPackageModalOpen(false);
+            setSelectedCustomer(null);
+            setSelectedPackage(null);
+        }
+    };
 
     return (
         <div className="space-y-4">
@@ -146,8 +201,8 @@ export function CustomerTable() {
                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Son Giriş
                             </th>
-                            <th scope="col" className="relative px-6 py-3">
-                                <span className="sr-only">Düzenle</span>
+                            <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                İşlemler
                             </th>
                         </tr>
                     </thead>
@@ -156,13 +211,12 @@ export function CustomerTable() {
                             // Mock Risk Logic
                             const isHighRisk = customer.tickets > 10; // Mock: High ticket volume
                             const isVIP = customer.volume > 4000; // Mock: High Volume
-                            const isEInvoiceOpp = customer.package === "Business" && !customer.isEInvoice; // Mock: Opportunity
+                            const PackageIcon = packageConfig[customer.package].icon;
 
                             return (
                                 <tr
                                     key={customer.id}
-                                    className="hover:bg-gray-50 transition-colors cursor-pointer"
-                                    onClick={() => router.push(`/customers/${customer.id}`)}
+                                    className="hover:bg-gray-50 transition-colors"
                                 >
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-center">
@@ -179,7 +233,15 @@ export function CustomerTable() {
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex flex-col">
-                                            <span className="text-sm text-gray-900 font-medium">{customer.package}</span>
+                                            <div className="flex items-center gap-2">
+                                                <PackageIcon className={cn(
+                                                    "h-4 w-4",
+                                                    customer.package === "Starter" && "text-gray-500",
+                                                    customer.package === "Business" && "text-blue-500",
+                                                    customer.package === "Enterprise" && "text-purple-500"
+                                                )} />
+                                                <span className="text-sm text-gray-900 font-medium">{customer.package}</span>
+                                            </div>
                                             <div className="flex items-center space-x-2 mt-1">
                                                 <span className={cn(
                                                     "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium",
@@ -241,7 +303,29 @@ export function CustomerTable() {
                                         {customer.lastLogin}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button onClick={(e) => { e.stopPropagation(); }} className="text-indigo-600 hover:text-indigo-900">Düzenle</button>
+                                        <div className="flex items-center justify-end gap-2">
+                                            <button
+                                                onClick={() => handleQuickView(customer)}
+                                                className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                                                title="Hızlı Önizleme"
+                                            >
+                                                <Eye className="h-4 w-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => handlePackageChange(customer)}
+                                                className="p-1.5 rounded-lg text-gray-400 hover:text-purple-600 hover:bg-purple-50 transition-colors"
+                                                title="Paket Değiştir"
+                                            >
+                                                <Package className="h-4 w-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => router.push(`/customers/${customer.id}`)}
+                                                className="p-1.5 rounded-lg text-gray-400 hover:text-green-600 hover:bg-green-50 transition-colors"
+                                                title="Düzenle"
+                                            >
+                                                <Edit className="h-4 w-4" />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             );
@@ -272,6 +356,252 @@ export function CustomerTable() {
                     </div>
                 </div>
             </div>
+
+            {/* Paket Değiştirme Modalı */}
+            {isPackageModalOpen && selectedCustomer && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+                    onClick={() => setIsPackageModalOpen(false)}
+                >
+                    <div
+                        className="w-full max-w-2xl bg-white rounded-xl shadow-xl overflow-hidden"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-indigo-50 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                                    <Package className="h-5 w-5 text-white" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900">Paket Değiştir</h3>
+                                    <p className="text-sm text-gray-500">{selectedCustomer.name}</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setIsPackageModalOpen(false)}
+                                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                            >
+                                <X className="h-5 w-5 text-gray-500" />
+                            </button>
+                        </div>
+
+                        <div className="p-6">
+                            {/* Current Package */}
+                            <div className="mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                                <p className="text-sm text-gray-500 mb-1">Mevcut Paket</p>
+                                <div className="flex items-center gap-2">
+                                    {(() => {
+                                        const CurrentIcon = packageConfig[selectedCustomer.package].icon;
+                                        return <CurrentIcon className={cn(
+                                            "h-5 w-5",
+                                            selectedCustomer.package === "Starter" && "text-gray-500",
+                                            selectedCustomer.package === "Business" && "text-blue-500",
+                                            selectedCustomer.package === "Enterprise" && "text-purple-500"
+                                        )} />;
+                                    })()}
+                                    <span className="text-lg font-bold text-gray-900">{selectedCustomer.package}</span>
+                                    <span className="text-sm text-gray-500">• {packageConfig[selectedCustomer.package].price}</span>
+                                </div>
+                            </div>
+
+                            {/* Package Options */}
+                            <p className="text-sm font-medium text-gray-700 mb-3">Yeni Paket Seçin</p>
+                            <div className="grid grid-cols-3 gap-4 mb-6">
+                                {(["Starter", "Business", "Enterprise"] as const).map((pkg) => {
+                                    const config = packageConfig[pkg];
+                                    const Icon = config.icon;
+                                    const isSelected = selectedPackage === pkg;
+                                    const isCurrent = selectedCustomer.package === pkg;
+
+                                    return (
+                                        <button
+                                            key={pkg}
+                                            onClick={() => setSelectedPackage(pkg)}
+                                            disabled={isCurrent}
+                                            className={cn(
+                                                "p-4 rounded-xl border-2 text-left transition-all",
+                                                isSelected && !isCurrent && "border-purple-500 bg-purple-50 ring-2 ring-purple-200",
+                                                !isSelected && !isCurrent && "border-gray-200 hover:border-gray-300 hover:bg-gray-50",
+                                                isCurrent && "border-gray-200 bg-gray-100 opacity-60 cursor-not-allowed"
+                                            )}
+                                        >
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <Icon className={cn(
+                                                    "h-5 w-5",
+                                                    config.color === "gray" && "text-gray-500",
+                                                    config.color === "blue" && "text-blue-500",
+                                                    config.color === "purple" && "text-purple-500"
+                                                )} />
+                                                <span className="font-semibold text-gray-900">{pkg}</span>
+                                                {isCurrent && <span className="text-xs bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded">Mevcut</span>}
+                                            </div>
+                                            <p className="text-lg font-bold text-gray-900 mb-2">{config.price}</p>
+                                            <ul className="space-y-1">
+                                                {config.features.slice(0, 3).map((feature, i) => (
+                                                    <li key={i} className="text-xs text-gray-500 flex items-center gap-1">
+                                                        <CheckCircle2 className="h-3 w-3 text-green-500" />
+                                                        {feature}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Change Summary */}
+                            {selectedPackage && selectedPackage !== selectedCustomer.package && (
+                                <div className="p-4 bg-blue-50 rounded-xl border border-blue-200 mb-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-medium text-gray-700">{selectedCustomer.package}</span>
+                                            <ArrowRight className="h-4 w-4 text-gray-400" />
+                                            <span className="font-bold text-purple-700">{selectedPackage}</span>
+                                        </div>
+                                    </div>
+                                    <p className="text-sm text-blue-700 mt-2">
+                                        Paket değişikliği hemen uygulanacak ve fiyat farkı bir sonraki fatura döneminde yansıtılacaktır.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex gap-3">
+                            <button
+                                onClick={handleConfirmPackageChange}
+                                disabled={!selectedPackage || selectedPackage === selectedCustomer.package}
+                                className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Paketi Değiştir
+                            </button>
+                            <button
+                                onClick={() => setIsPackageModalOpen(false)}
+                                className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors"
+                            >
+                                İptal
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Hızlı Önizleme Modalı */}
+            {isQuickViewOpen && quickViewCustomer && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+                    onClick={() => setIsQuickViewOpen(false)}
+                >
+                    <div
+                        className="w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className={cn("w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg", quickViewCustomer.avatarColor)}>
+                                    {quickViewCustomer.name.charAt(0)}
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900">{quickViewCustomer.name}</h3>
+                                    <p className="text-sm text-gray-500">{quickViewCustomer.email}</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setIsQuickViewOpen(false)}
+                                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                            >
+                                <X className="h-5 w-5 text-gray-500" />
+                            </button>
+                        </div>
+
+                        <div className="p-6 space-y-4">
+                            {/* Paket Bilgisi */}
+                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <span className="text-sm text-gray-600">Paket</span>
+                                <div className="flex items-center gap-2">
+                                    {(() => {
+                                        const Icon = packageConfig[quickViewCustomer.package].icon;
+                                        return <Icon className={cn(
+                                            "h-4 w-4",
+                                            quickViewCustomer.package === "Starter" && "text-gray-500",
+                                            quickViewCustomer.package === "Business" && "text-blue-500",
+                                            quickViewCustomer.package === "Enterprise" && "text-purple-500"
+                                        )} />;
+                                    })()}
+                                    <span className="font-semibold text-gray-900">{quickViewCustomer.package}</span>
+                                </div>
+                            </div>
+
+                            {/* Durum */}
+                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <span className="text-sm text-gray-600">Durum</span>
+                                <span className={cn(
+                                    "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
+                                    quickViewCustomer.subscriptionStatus === "Aktif" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                                )}>
+                                    {quickViewCustomer.subscriptionStatus}
+                                </span>
+                            </div>
+
+                            {/* Son Giriş */}
+                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <span className="text-sm text-gray-600">Son Giriş</span>
+                                <span className="font-medium text-gray-900">{quickViewCustomer.lastLogin}</span>
+                            </div>
+
+                            {/* Ödeme */}
+                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <span className="text-sm text-gray-600">Son Ödeme</span>
+                                <span className="font-medium text-gray-900">{quickViewCustomer.lastPayment}</span>
+                            </div>
+
+                            {/* Özellikler */}
+                            <div className="flex flex-wrap gap-2">
+                                {quickViewCustomer.hasEcommerce && (
+                                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                        <ShoppingBag className="mr-1 h-3 w-3" />
+                                        E-Ticaret
+                                    </span>
+                                )}
+                                {quickViewCustomer.isEInvoice && (
+                                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        <Rocket className="mr-1 h-3 w-3" />
+                                        E-Fatura
+                                    </span>
+                                )}
+                                {quickViewCustomer.autoRenewal && (
+                                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        <CheckCircle2 className="mr-1 h-3 w-3" />
+                                        Oto. Yenileme
+                                    </span>
+                                )}
+                                {quickViewCustomer.hasTraining && (
+                                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                        Eğitim Aldı
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex gap-3">
+                            <button
+                                onClick={() => {
+                                    setIsQuickViewOpen(false);
+                                    router.push(`/customers/${quickViewCustomer.id}`);
+                                }}
+                                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                            >
+                                Detaya Git
+                            </button>
+                            <button
+                                onClick={() => setIsQuickViewOpen(false)}
+                                className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors"
+                            >
+                                Kapat
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

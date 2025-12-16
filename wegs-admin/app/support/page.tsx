@@ -3,10 +3,12 @@
 import { TrainingCalendar, CalendarEvent } from "@/components/support/TrainingCalendar";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { GraduationCap, Users, UserX, BookOpen, BarChart3 } from "lucide-react";
+import { GraduationCap, Users, UserX, BookOpen, BarChart3, ExternalLink } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
 
 import { CustomerListModal } from "@/components/support/CustomerListModal";
+
 
 export default function SupportPage() {
     // Initial data
@@ -79,12 +81,21 @@ export default function SupportPage() {
 
     return (
         <PageContainer>
-            <PageHeader title="Destek ve Eğitim Merkezi" />
+            <PageHeader title="Destek ve Eğitim Merkezi">
+                <Link
+                    href="/support/training"
+                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                >
+                    <GraduationCap className="h-4 w-4 mr-2" />
+                    Eğitim Yönetimi
+                    <ExternalLink className="h-3 w-3 ml-2" />
+                </Link>
+            </PageHeader>
 
             {/* Top Metrics */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <div
-                    onClick={() => handleOpenList('trained')}
+                <Link
+                    href="/support/training?status=trained"
                     className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 cursor-pointer hover:shadow-md transition-shadow group"
                 >
                     <div className="flex items-center justify-between">
@@ -102,11 +113,12 @@ export default function SupportPage() {
                                 </div>
                             </div>
                         </div>
+                        <ExternalLink className="h-4 w-4 text-gray-400 group-hover:text-green-600 transition-colors" />
                     </div>
-                </div>
+                </Link>
 
-                <div
-                    onClick={() => handleOpenList('untrained')}
+                <Link
+                    href="/support/training?status=untrained"
                     className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 cursor-pointer hover:shadow-md transition-shadow group"
                 >
                     <div className="flex items-center justify-between">
@@ -122,8 +134,9 @@ export default function SupportPage() {
                                 </div>
                             </div>
                         </div>
+                        <ExternalLink className="h-4 w-4 text-gray-400 group-hover:text-red-600 transition-colors" />
                     </div>
-                </div>
+                </Link>
 
                 <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5">
                     <div className="flex items-center justify-between">
