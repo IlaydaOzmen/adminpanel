@@ -380,21 +380,23 @@ export default function CostAnalysisPage() {
                 </div>
             </div>
 
-            {/* Credit Consumption */}
-            <div className="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-6">
+            {/* Resource Consumption */}
+            <div className="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-6 mt-6">
                 <div className="flex items-center justify-between mb-6">
                     <div>
-                        <h3 className="text-lg font-semibold text-gray-900">Kontör Tüketimi</h3>
-                        <p className="text-sm text-gray-500">Kaynak kullanım durumu</p>
+                        <h3 className="text-lg font-semibold text-gray-900">Kaynak Kullanım Durumu</h3>
+                        <p className="text-sm text-gray-500">Kaynak tüketim özeti</p>
                     </div>
-                    <button className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-sm font-medium hover:bg-blue-100">
-                        <Coins className="h-4 w-4" />
-                        Kontör Satın Al
-                    </button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                    {creditConsumption.map((item) => {
+                    {[
+                        { type: "E-Fatura Gönderimi", consumed: 45000, allocated: 50000, unit: "adet" },
+                        { type: "E-Arşiv Fatura", consumed: 28000, allocated: 35000, unit: "adet" },
+                        { type: "SMS Bildirimi", consumed: 12500, allocated: 20000, unit: "adet" },
+                        { type: "API İsteği", consumed: 298000, allocated: 350000, unit: "adet" },
+                        { type: "Depolama", consumed: 45, allocated: 100, unit: "GB" },
+                    ].map((item) => {
                         const percentage = (item.consumed / item.allocated) * 100;
                         const isWarning = percentage > 80;
                         const isCritical = percentage > 95;

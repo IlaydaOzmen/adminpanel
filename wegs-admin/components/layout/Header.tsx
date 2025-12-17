@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Bell, Search, User, X, Check, AlertCircle, FileText, UserPlus, CreditCard } from "lucide-react";
+import { Bell, Search, User, X, Check, AlertCircle, FileText, UserPlus, CreditCard, Users, LayoutDashboard, Settings, BarChart3, FileCheck2, Coins, HeadphonesIcon, MessageSquare, Building2, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 // Mock Notifications
 const mockNotifications = [
@@ -12,22 +14,74 @@ const mockNotifications = [
     { id: 5, title: "Sistem güncellemesi", message: "v2.4.1 hazır", time: "5 saat önce", icon: Check, type: "info", read: true },
 ];
 
+// Searchable pages
+const searchablePages = [
+    { name: "Panel", href: "/", icon: LayoutDashboard, category: "Sayfa" },
+    { name: "Müşteriler", href: "/customers", icon: Users, category: "Sayfa" },
+    { name: "Raporlar", href: "/reports", icon: BarChart3, category: "Sayfa" },
+    { name: "Finans", href: "/finance", icon: CreditCard, category: "Sayfa" },
+    { name: "E-Fatura", href: "/customers/einvoice", icon: FileCheck2, category: "Sayfa" },
+    { name: "Kontörler", href: "/credits", icon: Coins, category: "Sayfa" },
+    { name: "Destek", href: "/support", icon: HeadphonesIcon, category: "Sayfa" },
+    { name: "Geri Bildirimler", href: "/feedback", icon: MessageSquare, category: "Sayfa" },
+    { name: "Bildirimler", href: "/notifications", icon: Bell, category: "Sayfa" },
+    { name: "Ayarlar", href: "/settings", icon: Settings, category: "Sayfa" },
+    { name: "Maliyet Analizi", href: "/costs", icon: BarChart3, category: "Sayfa" },
+    { name: "Sistem Yönetimi", href: "/system", icon: Settings, category: "Sayfa" },
+    { name: "Ortaklar", href: "/partners", icon: Building2, category: "Sayfa" },
+];
+
+// Mock customers for search
+const searchableCustomers = [
+    { id: "1", name: "TechSoft A.Ş.", contact: "Ahmet Yılmaz", type: "Enterprise" },
+    { id: "2", name: "Atlas Lojistik", contact: "Zeynep Demir", type: "Business" },
+    { id: "3", name: "Mega Market", contact: "Can Özkan", type: "Business" },
+    { id: "4", name: "Digital Solutions", contact: "Mehmet Kaya", type: "Starter" },
+    { id: "5", name: "Demir Ticaret", contact: "Ayşe Demir", type: "Business" },
+    { id: "6", name: "Kaya Lojistik", contact: "Ali Kara", type: "Enterprise" },
+    { id: "7", name: "Çelik Mobilya", contact: "Fatma Şahin", type: "Starter" },
+];
+
 export function Header() {
+    const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const [notifications, setNotifications] = useState(mockNotifications);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
+    // Search state
+    const [searchQuery, setSearchQuery] = useState("");
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const searchRef = useRef<HTMLDivElement>(null);
+
     const unreadCount = notifications.filter(n => !n.read).length;
 
-    // Close dropdown when clicking outside
+    // Close dropdowns when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
                 setIsOpen(false);
             }
+            if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+                setIsSearchOpen(false);
+            }
         };
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    // Keyboard shortcut for search
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+                e.preventDefault();
+                setIsSearchOpen(true);
+            }
+            if (e.key === "Escape") {
+                setIsSearchOpen(false);
+            }
+        };
+        document.addEventListener("keydown", handleKeyDown);
+        return () => document.removeEventListener("keydown", handleKeyDown);
     }, []);
 
     const markAllAsRead = () => {
@@ -47,18 +101,110 @@ export function Header() {
         }
     };
 
+    // Search results
+    const filteredPages = searchQuery.length > 0
+        ? searchablePages.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
+        : [];
+
+    const filteredCustomers = searchQuery.length > 0
+        ? searchableCustomers.filter(c =>
+            c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            c.contact.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        : [];
+
+    const hasResults = filteredPages.length > 0 || filteredCustomers.length > 0;
+
+    const handleSearchSelect = (href: string) => {
+        router.push(href);
+        setSearchQuery("");
+        setIsSearchOpen(false);
+    };
+
     return (
         <header className="flex h-16 items-center justify-between border-b bg-white px-6 shadow-sm">
             <div className="flex items-center">
-                <div className="relative">
+                <div className="relative" ref={searchRef}>
                     <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                         <Search className="h-5 w-5 text-gray-400" />
                     </span>
                     <input
                         type="text"
-                        placeholder="Ara..."
-                        className="rounded-md border border-gray-300 bg-gray-50 py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 w-64"
+                        placeholder="Ara... (⌘K)"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onFocus={() => setIsSearchOpen(true)}
+                        className="rounded-lg border border-gray-300 bg-gray-50 py-2 pl-10 pr-4 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 w-72 transition-all placeholder:text-gray-400"
                     />
+
+                    {/* Search Results Dropdown */}
+                    {isSearchOpen && searchQuery.length > 0 && (
+                        <div className="absolute left-0 top-full mt-2 w-96 rounded-xl bg-white shadow-2xl border border-gray-100 z-50 animate-in fade-in slide-in-from-top-2 duration-200 overflow-hidden">
+                            {!hasResults ? (
+                                <div className="p-6 text-center text-gray-500">
+                                    <Search className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                                    <p className="text-sm">"{searchQuery}" için sonuç bulunamadı</p>
+                                </div>
+                            ) : (
+                                <div className="max-h-[400px] overflow-y-auto">
+                                    {/* Pages */}
+                                    {filteredPages.length > 0 && (
+                                        <div>
+                                            <div className="px-4 py-2 bg-gray-50 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Sayfalar
+                                            </div>
+                                            {filteredPages.map((page) => (
+                                                <button
+                                                    key={page.href}
+                                                    onClick={() => handleSearchSelect(page.href)}
+                                                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors text-left"
+                                                >
+                                                    <div className="p-2 bg-gray-100 rounded-lg">
+                                                        <page.icon className="h-4 w-4 text-gray-600" />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <p className="text-sm font-medium text-gray-900">{page.name}</p>
+                                                        <p className="text-xs text-gray-500">{page.category}</p>
+                                                    </div>
+                                                    <ArrowRight className="h-4 w-4 text-gray-400" />
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {/* Customers */}
+                                    {filteredCustomers.length > 0 && (
+                                        <div>
+                                            <div className="px-4 py-2 bg-gray-50 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Müşteriler
+                                            </div>
+                                            {filteredCustomers.slice(0, 5).map((customer) => (
+                                                <button
+                                                    key={customer.id}
+                                                    onClick={() => handleSearchSelect(`/customers/${customer.id}`)}
+                                                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors text-left"
+                                                >
+                                                    <div className="h-9 w-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                                        {customer.name.charAt(0)}
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <p className="text-sm font-medium text-gray-900">{customer.name}</p>
+                                                        <p className="text-xs text-gray-500">{customer.contact} • {customer.type}</p>
+                                                    </div>
+                                                    <ArrowRight className="h-4 w-4 text-gray-400" />
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            <div className="px-4 py-2 border-t border-gray-100 bg-gray-50 text-xs text-gray-500 flex items-center justify-between">
+                                <span>⌘K ile hızlı arama</span>
+                                <span>ESC ile kapat</span>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -121,9 +267,9 @@ export function Header() {
                                 )}
                             </div>
                             <div className="p-3 border-t border-gray-100 text-center">
-                                <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                                <Link href="/notifications" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
                                     Tüm bildirimleri gör
-                                </button>
+                                </Link>
                             </div>
                         </div>
                     )}

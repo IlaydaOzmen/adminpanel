@@ -21,9 +21,19 @@ import {
     Download,
     ArrowUpRight,
     Clock,
-    CheckCircle2
+    CheckCircle2,
+    Mail
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+    AreaChart,
+    Area,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer
+} from "recharts";
 
 type CreditStatus = "low" | "critical" | "normal" | "high" | "all";
 type PackageType = "Starter" | "Business" | "Enterprise" | "all";
@@ -208,9 +218,22 @@ export default function CreditsPage() {
     const totalRemainingCredits = mockCredits.reduce((sum, c) => sum + c.remainingCredits, 0);
     const autoRenewCount = mockCredits.filter(c => c.autoRenew).length;
 
+    const consumptionTrend = [
+        { month: "Oca", usage: 12000 },
+        { month: "Şub", usage: 15500 },
+        { month: "Mar", usage: 14200 },
+        { month: "Nis", usage: 18900 },
+        { month: "May", usage: 22000 },
+        { month: "Haz", usage: 25600 },
+    ];
+
     const handleAddCredits = (customer: CustomerCredit) => {
         setSelectedCustomer(customer);
         setIsAddCreditsModalOpen(true);
+    };
+
+    const handleSendAlert = (customer: CustomerCredit) => {
+        alert(`${customer.name} kullanıcısına bakiye uyarısı gönderildi!`);
     };
 
     return (
@@ -439,13 +462,25 @@ export default function CreditsPage() {
                                                 {customer.lastUsage}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <button
-                                                    onClick={() => handleAddCredits(customer)}
-                                                    className="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors"
-                                                >
-                                                    <Plus className="h-3 w-3 mr-1" />
-                                                    Kontör Ekle
-                                                </button>
+                                                <div className="flex items-center justify-end gap-2">
+                                                    {(status === "critical" || status === "low") && (
+                                                        <button
+                                                            onClick={() => handleSendAlert(customer)}
+                                                            className="inline-flex items-center px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-xs font-medium hover:bg-red-200 transition-colors"
+                                                            title="Bakiye uyarısı gönder"
+                                                        >
+                                                            <Mail className="h-3 w-3 mr-1" />
+                                                            Uyar
+                                                        </button>
+                                                    )}
+                                                    <button
+                                                        onClick={() => handleAddCredits(customer)}
+                                                        className="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors"
+                                                    >
+                                                        <Plus className="h-3 w-3 mr-1" />
+                                                        Ekle
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     );
@@ -455,6 +490,29 @@ export default function CreditsPage() {
                     </table>
                 </div>
             </div>
+
+            {/* Consumption Trend Chart - Moved below table */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Dönemsel Kontör Tüketimi</h3>
+                <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={consumptionTrend}>
+                            <defs>
+                                <linearGradient id="colorUsage" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                            <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                            <Tooltip />
+                            <Area type="monotone" dataKey="usage" stroke="#3b82f6" strokeWidth={2} fill="url(#colorUsage)" name="Kullanım Miktarı" />
+                        </AreaChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
+
 
             {/* Add Credits Modal */}
             {isAddCreditsModalOpen && selectedCustomer && (

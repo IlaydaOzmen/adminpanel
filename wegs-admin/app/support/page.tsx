@@ -1,9 +1,10 @@
 "use client";
 
 import { TrainingCalendar, CalendarEvent } from "@/components/support/TrainingCalendar";
+
 import { PageContainer } from "@/components/layout/PageContainer";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { GraduationCap, Users, UserX, BookOpen, BarChart3, ExternalLink } from "lucide-react";
+import { GraduationCap, Users, UserX, BookOpen, BarChart3, ExternalLink, Bot } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 
@@ -82,18 +83,48 @@ export default function SupportPage() {
     return (
         <PageContainer>
             <PageHeader title="Destek ve Eğitim Merkezi">
-                <Link
-                    href="/support/training"
-                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-                >
-                    <GraduationCap className="h-4 w-4 mr-2" />
-                    Eğitim Yönetimi
-                    <ExternalLink className="h-3 w-3 ml-2" />
-                </Link>
+                <div className="flex gap-2">
+                    <Link
+                        href="/support/ai-bot"
+                        className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                    >
+                        <Bot className="h-4 w-4 mr-2" />
+                        AI Bot Analizi
+                    </Link>
+                    <Link
+                        href="/support/training"
+                        className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                    >
+                        <GraduationCap className="h-4 w-4 mr-2" />
+                        Eğitim Yönetimi
+                        <ExternalLink className="h-3 w-3 ml-2" />
+                    </Link>
+                </div>
             </PageHeader>
 
             {/* Top Metrics */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                <Link
+                    href="/support/ai-bot"
+                    className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 cursor-pointer hover:shadow-md transition-shadow group border-l-4 border-indigo-500"
+                >
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                            <div className="rounded-md bg-indigo-50 p-2 ring-1 ring-indigo-100 group-hover:bg-indigo-100 transition-colors">
+                                <Bot className="h-6 w-6 text-indigo-600" />
+                            </div>
+                            <div className="ml-4">
+                                <h3 className="text-sm font-medium text-gray-500">AI Bot Analizi</h3>
+                                <div className="mt-1 flex items-baseline">
+                                    <p className="text-2xl font-semibold text-gray-900">12.4k</p>
+                                    <p className="ml-2 text-xs text-indigo-600 font-medium">Görüşme</p>
+                                </div>
+                            </div>
+                        </div>
+                        <ExternalLink className="h-4 w-4 text-gray-400 group-hover:text-indigo-600 transition-colors" />
+                    </div>
+                </Link>
+
                 <Link
                     href="/support/training?status=trained"
                     className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 cursor-pointer hover:shadow-md transition-shadow group"

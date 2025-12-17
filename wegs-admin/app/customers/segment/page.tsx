@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { PageHeader } from "@/components/layout/PageHeader";
 import {
@@ -111,6 +111,7 @@ const segmentConfig: Record<string, { label: string; color: string; icon: React.
 };
 
 export default function SegmentCustomersPage() {
+    const router = useRouter();
     const searchParams = useSearchParams();
     const segmentParam = searchParams.get("segment") as SegmentType || "all";
 
@@ -179,13 +180,13 @@ export default function SegmentCustomersPage() {
     return (
         <PageContainer>
             <PageHeader title="Segment Müşterileri">
-                <Link
-                    href="/"
+                <button
+                    onClick={() => router.back()}
                     className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                 >
                     <ArrowLeft className="h-4 w-4" />
-                    Panele Dön
-                </Link>
+                    Geri Dön
+                </button>
                 <button className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
                     <Download className="h-4 w-4" />
                     Dışa Aktar

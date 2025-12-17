@@ -182,6 +182,13 @@ export default function EInvoiceTaxpayersPage() {
             <PageHeader title="E-Fatura Mükellefleri" description="Tüm e-fatura ve e-arşiv mükelleflerini görüntüleyin.">
                 <div className="flex gap-2">
                     <Link
+                        href="/einvoice/performance"
+                        className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                    >
+                        <TrendingUp className="h-4 w-4 mr-2" />
+                        İşlem Performansı
+                    </Link>
+                    <Link
                         href="/customers"
                         className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                     >

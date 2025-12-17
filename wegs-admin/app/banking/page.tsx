@@ -201,6 +201,74 @@ const accountChartData = bankIntegrations
         color: b.color
     }));
 
+// Mock Customer Account Data
+interface CustomerBankAccount {
+    id: string;
+    name: string;
+    company: string;
+    connectedBanks: string[]; // Bank IDs
+    totalAccounts: number;
+    lastTransaction: string;
+    status: "active" | "inactive";
+}
+
+const mockCustomerAccounts: CustomerBankAccount[] = [
+    {
+        id: "1",
+        name: "Ahmet Yılmaz",
+        company: "TechSoft A.Ş.",
+        connectedBanks: ["garanti", "isbank", "akbank"],
+        totalAccounts: 5,
+        lastTransaction: "2 saat önce",
+        status: "active"
+    },
+    {
+        id: "2",
+        name: "Ayşe Demir",
+        company: "Demir Ticaret",
+        connectedBanks: ["ziraat", "denizbank"],
+        totalAccounts: 3,
+        lastTransaction: "1 gün önce",
+        status: "active"
+    },
+    {
+        id: "3",
+        name: "Mehmet Kaya",
+        company: "Kaya Lojistik",
+        connectedBanks: ["garanti", "yapikredi"],
+        totalAccounts: 4,
+        lastTransaction: "5 saat önce",
+        status: "active"
+    },
+    {
+        id: "4",
+        name: "Zeynep Çelik",
+        company: "Çelik Mobilya",
+        connectedBanks: ["qnb", "isbank"],
+        totalAccounts: 2,
+        lastTransaction: "3 gün önce",
+        status: "inactive"
+    },
+    {
+        id: "5",
+        name: "Can Öztürk",
+        company: "Öztürk Tekstil",
+        connectedBanks: ["garanti", "akbank", "yapikredi", "ziraat"],
+        totalAccounts: 8,
+        lastTransaction: "12 dakika önce",
+        status: "active"
+    },
+    {
+        id: "6",
+        name: "Fatma Şahin",
+        company: "Şahin Market",
+        connectedBanks: ["denizbank"],
+        totalAccounts: 1,
+        lastTransaction: "1 hafta önce",
+        status: "active"
+    }
+];
+
 export default function BankModulePage() {
     const [selectedBank, setSelectedBank] = useState<BankIntegration | null>(null);
     const [activeTab, setActiveTab] = useState<"overview" | "customers" | "accounts">("overview");
@@ -346,69 +414,146 @@ export default function BankModulePage() {
                 </div>
             )}
 
+
+
             {/* Customers Tab - Customer Distribution */}
             {activeTab === "customers" && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Pie Chart */}
-                    <div className="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-6">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Banka Bazlı Müşteri Dağılımı</h3>
-                        <div className="h-72">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie
-                                        data={customerChartData}
-                                        cx="50%"
-                                        cy="50%"
-                                        innerRadius={60}
-                                        outerRadius={100}
-                                        paddingAngle={2}
-                                        dataKey="value"
-                                    >
-                                        {customerChartData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip formatter={(value: number) => [`${value} müşteri`, '']} />
-                                </PieChart>
-                            </ResponsiveContainer>
+                <div className="space-y-6">
+                    {/* Top Row: Charts */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Pie Chart */}
+                        <div className="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-6">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Banka Bazlı Müşteri Dağılımı</h3>
+                            <div className="h-72">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
+                                        <Pie
+                                            data={customerChartData}
+                                            cx="50%"
+                                            cy="50%"
+                                            innerRadius={60}
+                                            outerRadius={100}
+                                            paddingAngle={2}
+                                            dataKey="value"
+                                        >
+                                            {customerChartData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.color} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip formatter={(value: number) => [`${value} müşteri`, '']} />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
+
+                        {/* Customer Ranking (Restored) */}
+                        <div className="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-6">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Müşteri Sıralaması</h3>
+                            <div className="space-y-3">
+                                {bankIntegrations
+                                    .filter(b => b.customerCount > 0)
+                                    .sort((a, b) => b.customerCount - a.customerCount)
+                                    .map((bank, idx) => {
+                                        const percentage = (bank.customerCount / totalCustomers) * 100;
+                                        return (
+                                            <div key={bank.id} className="space-y-2">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-3">
+                                                        <div
+                                                            className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold"
+                                                            style={{ background: bank.color }}
+                                                        >
+                                                            {idx + 1}
+                                                        </div>
+                                                        <span className="font-medium text-gray-900">{bank.shortName}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-sm text-gray-500">{percentage.toFixed(1)}%</span>
+                                                        <span className="font-bold text-gray-900">{bank.customerCount}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full rounded-full"
+                                                        style={{ width: `${percentage}%`, backgroundColor: bank.color }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                            </div>
                         </div>
                     </div>
 
-                    {/* Customer List */}
-                    <div className="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-6">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Müşteri Sıralaması</h3>
-                        <div className="space-y-3">
-                            {bankIntegrations
-                                .filter(b => b.customerCount > 0)
-                                .sort((a, b) => b.customerCount - a.customerCount)
-                                .map((bank, idx) => {
-                                    const percentage = (bank.customerCount / totalCustomers) * 100;
-                                    return (
-                                        <div key={bank.id} className="space-y-2">
-                                            <div className="flex items-center justify-between">
+                    {/* Customer Bank List - Full Width */}
+                    <div className="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 overflow-hidden">
+                        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                            <h3 className="text-lg font-semibold text-gray-900">Müşteri Hesap Listesi</h3>
+                            <span className="text-sm text-gray-500">{mockCustomerAccounts.length} müşteri gösteriliyor</span>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full divide-y divide-gray-200">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Müşteri</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Entegre Bankalar</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hesap</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Son İşlem</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Durum</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {mockCustomerAccounts.map((customer) => (
+                                        <tr key={customer.id} className="hover:bg-gray-50">
+                                            <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div
-                                                        className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold"
-                                                        style={{ background: bank.color }}
-                                                    >
-                                                        {idx + 1}
+                                                    <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">
+                                                        {customer.name.charAt(0)}
                                                     </div>
-                                                    <span className="font-medium text-gray-900">{bank.shortName}</span>
+                                                    <div>
+                                                        <p className="text-sm font-medium text-gray-900">{customer.name}</p>
+                                                        <p className="text-xs text-gray-500">{customer.company}</p>
+                                                    </div>
                                                 </div>
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-sm text-gray-500">{percentage.toFixed(1)}%</span>
-                                                    <span className="font-bold text-gray-900">{bank.customerCount}</span>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center -space-x-2">
+                                                    {customer.connectedBanks.map((bankId, idx) => {
+                                                        const bank = bankIntegrations.find(b => b.id === bankId);
+                                                        if (!bank) return null;
+                                                        return (
+                                                            <div
+                                                                key={idx}
+                                                                className="relative z-10 w-8 h-8 rounded-lg border-2 border-white flex items-center justify-center text-white text-[10px]"
+                                                                style={{ background: bank.color }}
+                                                                title={bank.name}
+                                                            >
+                                                                {bank.shortName.substring(0, 2)}
+                                                            </div>
+                                                        );
+                                                    })}
                                                 </div>
-                                            </div>
-                                            <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                                                <div
-                                                    className="h-full rounded-full"
-                                                    style={{ width: `${percentage}%`, backgroundColor: bank.color }}
-                                                />
-                                            </div>
-                                        </div>
-                                    );
-                                })}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                    {customer.totalAccounts} Hesap
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-gray-500">
+                                                {customer.lastTransaction}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className={cn(
+                                                    "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium",
+                                                    customer.status === "active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
+                                                )}>
+                                                    {customer.status === "active" ? "Aktif" : "Pasif"}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

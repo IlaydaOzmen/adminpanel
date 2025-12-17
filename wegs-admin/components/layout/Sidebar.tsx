@@ -24,10 +24,16 @@ import {
 import { cn } from "@/lib/utils";
 
 const menuItems = [
+    // Core Operations
     {
         title: "Panel",
         href: "/",
         icon: LayoutDashboard,
+    },
+    {
+        title: "Müşteriler",
+        href: "/customers",
+        icon: Users,
     },
     {
         title: "Finans",
@@ -40,11 +46,6 @@ const menuItems = [
         icon: Landmark,
     },
     {
-        title: "Müşteriler",
-        href: "/customers",
-        icon: Users,
-    },
-    {
         title: "Kontörler",
         href: "/credits",
         icon: Coins,
@@ -54,6 +55,7 @@ const menuItems = [
         href: "/integrations",
         icon: Plug,
     },
+    // Risk & Analytics
     {
         title: "Risk & Otomasyon",
         href: "/risk",
@@ -65,16 +67,6 @@ const menuItems = [
         icon: FlaskConical,
     },
     {
-        title: "Destek",
-        href: "/support",
-        icon: HeadphonesIcon,
-    },
-    {
-        title: "Sistem",
-        href: "/system",
-        icon: Settings,
-    },
-    {
         title: "Raporlar",
         href: "/reports",
         icon: BarChart3,
@@ -84,6 +76,7 @@ const menuItems = [
         href: "/costs",
         icon: Calculator,
     },
+    // Partners & Feedback
     {
         title: "Partner Portal",
         href: "/partners",
@@ -94,10 +87,21 @@ const menuItems = [
         href: "/feedback",
         icon: MessageSquare,
     },
+    // Support & System
+    {
+        title: "Destek",
+        href: "/support",
+        icon: HeadphonesIcon,
+    },
     {
         title: "Bildirimler",
         href: "/notifications",
         icon: Bell,
+    },
+    {
+        title: "Sistem",
+        href: "/system",
+        icon: Settings,
     },
     {
         title: "Admin",

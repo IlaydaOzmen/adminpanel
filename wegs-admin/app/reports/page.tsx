@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { KPICard } from "@/components/reports/KPICard";
 import { ReportFilters } from "@/components/reports/ReportFilters";
 import { ReportExporter } from "@/components/reports/ReportExporter";
+import { ReportBuilderModal } from "@/components/reports/ReportBuilderModal";
 import { ModuleUsageStats } from "@/components/reports/ModuleUsageStats";
 import { ExpiringLicenses } from "@/components/reports/ExpiringLicenses";
 import {
@@ -19,6 +20,7 @@ import {
     AlertTriangle,
     Clock,
     BarChart3,
+    Settings2,
 } from "lucide-react";
 
 interface KPIData {
@@ -153,6 +155,7 @@ export default function ReportsPage() {
         end: new Date().toISOString().split("T")[0],
     });
     const [category, setCategory] = useState("all");
+    const [isReportBuilderOpen, setIsReportBuilderOpen] = useState(false);
 
     const handleToggleKPI = (id: string, selected: boolean) => {
         setSelectedKPIs((prev) => {
@@ -191,8 +194,22 @@ export default function ReportsPage() {
                 title="Raporlar ve KPI"
                 description="Önemli metrikleri görüntüleyin ve raporları tek tuşla indirin."
             >
-                <ReportExporter selectedKPIs={selectedKPIData} dateRange={dateRange} />
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => setIsReportBuilderOpen(true)}
+                        className="inline-flex items-center px-4 py-2.5 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+                    >
+                        <Settings2 className="h-5 w-5 mr-2" />
+                        Özel Rapor Oluştur
+                    </button>
+                    <ReportExporter selectedKPIs={selectedKPIData} dateRange={dateRange} />
+                </div>
             </PageHeader>
+
+            <ReportBuilderModal
+                isOpen={isReportBuilderOpen}
+                onClose={() => setIsReportBuilderOpen(false)}
+            />
 
             {/* Filters */}
             <ReportFilters

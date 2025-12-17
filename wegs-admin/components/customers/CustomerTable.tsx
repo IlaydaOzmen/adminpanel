@@ -117,6 +117,7 @@ export function CustomerTable() {
         if (filter === "no-training") return matchesSearch && !customer.hasTraining;
         if (filter === "ecommerce") return matchesSearch && customer.hasEcommerce;
         if (filter === "ecommerce-einvoice") return matchesSearch && customer.hasEcommerce && customer.isEInvoice;
+        if (filter === "ecommerce-non-invoice") return matchesSearch && customer.hasEcommerce && !customer.isEInvoice;
         if (filter === "accounting-only") return matchesSearch && !customer.hasEcommerce && !customer.isEInvoice;
 
         return matchesSearch;
@@ -165,6 +166,7 @@ export function CustomerTable() {
                             <option value="all">Tüm Müşteriler</option>
                             <option value="ecommerce">E-ticaret Entegrasyonlu</option>
                             <option value="ecommerce-einvoice">E-tic. + E-Fatura</option>
+                            <option value="ecommerce-non-invoice">E-Ticaret + Fatura Kesmeyen</option>
                             <option value="accounting-only">Sadece Muhasebe</option>
                             <option value="einvoice">E-Fatura Mükellefleri</option>
                             <option value="non-invoice">Fatura Kesmeyenler</option>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PaymentList } from "@/components/finance/PaymentList";
 import {
     CreditCard,
     DollarSign,
@@ -25,7 +26,9 @@ import {
     Ban,
     MoreVertical,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    LayoutDashboard,
+    List
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -33,6 +36,7 @@ import { cn } from "@/lib/utils";
 type PaymentStatus = "completed" | "pending" | "failed" | "refunded";
 type PaymentMethod = "credit_card" | "bank_transfer" | "iyzico" | "paytr";
 type SubscriptionType = "monthly" | "yearly" | "trial";
+type ViewMode = "overview" | "payments";
 
 interface Payment {
     id: string;
@@ -183,6 +187,7 @@ const paymentsData: Payment[] = [
 ];
 
 export default function FinancePage() {
+    const [viewMode, setViewMode] = useState<ViewMode>("overview");
     const [searchQuery, setSearchQuery] = useState("");
     const [filterStatus, setFilterStatus] = useState<PaymentStatus | "all">("all");
     const [filterMethod, setFilterMethod] = useState<PaymentMethod | "all">("all");
@@ -242,320 +247,348 @@ export default function FinancePage() {
                 </button>
             </PageHeader>
 
-            {/* İstatistik Kartları */}
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5 mb-6">
-                <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl p-6 text-white">
-                    <div className="flex items-center justify-between mb-3">
-                        <DollarSign className="h-8 w-8 opacity-80" />
-                        <span className="inline-flex items-center text-sm font-medium bg-white/20 px-2 py-1 rounded">
-                            <ArrowUpRight className="h-3 w-3 mr-1" />
-                            +18%
-                        </span>
-                    </div>
-                    <p className="text-sm text-green-100">Toplam Gelir</p>
-                    <p className="text-2xl font-bold">{formatCurrency(totalRevenue)}</p>
-                </div>
-
-                <div className="bg-gradient-to-br from-yellow-500 to-amber-600 rounded-xl p-6 text-white">
-                    <div className="flex items-center justify-between mb-3">
-                        <Clock className="h-8 w-8 opacity-80" />
-                    </div>
-                    <p className="text-sm text-yellow-100">Bekleyen Ödemeler</p>
-                    <p className="text-2xl font-bold">{formatCurrency(pendingAmount)}</p>
-                </div>
-
-                <div className="bg-gradient-to-br from-gray-500 to-slate-600 rounded-xl p-6 text-white">
-                    <div className="flex items-center justify-between mb-3">
-                        <RefreshCw className="h-8 w-8 opacity-80" />
-                    </div>
-                    <p className="text-sm text-gray-200">İadeler</p>
-                    <p className="text-2xl font-bold">{formatCurrency(refundedAmount)}</p>
-                </div>
-
-                <div className="bg-gradient-to-br from-red-500 to-rose-600 rounded-xl p-6 text-white">
-                    <div className="flex items-center justify-between mb-3">
-                        <XCircle className="h-8 w-8 opacity-80" />
-                    </div>
-                    <p className="text-sm text-red-100">Başarısız İşlem</p>
-                    <p className="text-2xl font-bold">{failedCount}</p>
-                </div>
-
-                <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl p-6 text-white">
-                    <div className="flex items-center justify-between mb-3">
-                        <TrendingUp className="h-8 w-8 opacity-80" />
-                    </div>
-                    <p className="text-sm text-blue-100">Başarı Oranı</p>
-                    <p className="text-2xl font-bold">%{successRate}</p>
-                </div>
+            {/* Tabs */}
+            <div className="flex items-center gap-2 mb-6 bg-white p-1.5 rounded-xl border border-gray-200 shadow-sm w-fit">
+                {[
+                    { id: "overview" as ViewMode, label: "Genel Bakış", icon: LayoutDashboard },
+                    { id: "payments" as ViewMode, label: "Ödeme Geçmişi", icon: List },
+                ].map((tab) => (
+                    <button
+                        key={tab.id}
+                        onClick={() => setViewMode(tab.id)}
+                        className={cn(
+                            "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                            viewMode === tab.id
+                                ? "bg-blue-50 text-blue-700"
+                                : "text-gray-600 hover:bg-gray-50"
+                        )}
+                    >
+                        <tab.icon className="h-4 w-4" />
+                        {tab.label}
+                    </button>
+                ))}
             </div>
 
-            {/* Filtreler */}
-            <div className="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-4 mb-6">
-                <div className="flex flex-wrap gap-4">
-                    <div className="flex-1 min-w-[250px]">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                            <input
-                                type="text"
-                                placeholder="Müşteri, şirket veya fatura no ara..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
+            {viewMode === "payments" && <PaymentList />}
+
+            {viewMode === "overview" && (
+                <>
+                    {/* İstatistik Kartları */}
+                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5 mb-6">
+                        <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl p-6 text-white">
+                            <div className="flex items-center justify-between mb-3">
+                                <DollarSign className="h-8 w-8 opacity-80" />
+                                <span className="inline-flex items-center text-sm font-medium bg-white/20 px-2 py-1 rounded">
+                                    <ArrowUpRight className="h-3 w-3 mr-1" />
+                                    +18%
+                                </span>
+                            </div>
+                            <p className="text-sm text-green-100">Toplam Gelir</p>
+                            <p className="text-2xl font-bold">{formatCurrency(totalRevenue)}</p>
+                        </div>
+
+                        <div className="bg-gradient-to-br from-yellow-500 to-amber-600 rounded-xl p-6 text-white">
+                            <div className="flex items-center justify-between mb-3">
+                                <Clock className="h-8 w-8 opacity-80" />
+                            </div>
+                            <p className="text-sm text-yellow-100">Bekleyen Ödemeler</p>
+                            <p className="text-2xl font-bold">{formatCurrency(pendingAmount)}</p>
+                        </div>
+
+                        <div className="bg-gradient-to-br from-gray-500 to-slate-600 rounded-xl p-6 text-white">
+                            <div className="flex items-center justify-between mb-3">
+                                <RefreshCw className="h-8 w-8 opacity-80" />
+                            </div>
+                            <p className="text-sm text-gray-200">İadeler</p>
+                            <p className="text-2xl font-bold">{formatCurrency(refundedAmount)}</p>
+                        </div>
+
+                        <div className="bg-gradient-to-br from-red-500 to-rose-600 rounded-xl p-6 text-white">
+                            <div className="flex items-center justify-between mb-3">
+                                <XCircle className="h-8 w-8 opacity-80" />
+                            </div>
+                            <p className="text-sm text-red-100">Başarısız İşlem</p>
+                            <p className="text-2xl font-bold">{failedCount}</p>
+                        </div>
+
+                        <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl p-6 text-white">
+                            <div className="flex items-center justify-between mb-3">
+                                <TrendingUp className="h-8 w-8 opacity-80" />
+                            </div>
+                            <p className="text-sm text-blue-100">Başarı Oranı</p>
+                            <p className="text-2xl font-bold">%{successRate}</p>
                         </div>
                     </div>
-                    <select
-                        value={filterStatus}
-                        onChange={(e) => setFilterStatus(e.target.value as PaymentStatus | "all")}
-                        className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                        <option value="all">Tüm Durumlar</option>
-                        <option value="completed">Tamamlandı</option>
-                        <option value="pending">Beklemede</option>
-                        <option value="failed">Başarısız</option>
-                        <option value="refunded">İade Edildi</option>
-                    </select>
-                    <select
-                        value={filterMethod}
-                        onChange={(e) => setFilterMethod(e.target.value as PaymentMethod | "all")}
-                        className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                        <option value="all">Tüm Yöntemler</option>
-                        <option value="credit_card">Kredi Kartı</option>
-                        <option value="bank_transfer">Havale/EFT</option>
-                        <option value="iyzico">iyzico</option>
-                        <option value="paytr">PayTR</option>
-                    </select>
-                    <select
-                        value={dateRange}
-                        onChange={(e) => setDateRange(e.target.value)}
-                        className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                        <option value="today">Bugün</option>
-                        <option value="this_week">Bu Hafta</option>
-                        <option value="this_month">Bu Ay</option>
-                        <option value="last_month">Geçen Ay</option>
-                        <option value="this_year">Bu Yıl</option>
-                    </select>
-                </div>
-            </div>
 
-            {/* Ödeme Tablosu */}
-            <div className="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-gray-900">Ödeme İşlemleri</h3>
-                    <span className="text-sm text-gray-500">{filteredPayments.length} işlem</span>
-                </div>
-                <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Müşteri</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paket</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tutar</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Yöntem</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Durum</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tarih</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fatura No</th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">İşlem</th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {filteredPayments.map((payment) => {
-                                const StatusIcon = statusConfig[payment.status].icon;
-                                const MethodIcon = methodConfig[payment.method].icon;
-                                return (
-                                    <tr key={payment.id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center">
-                                                <div className="flex-shrink-0 h-10 w-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">
-                                                    {payment.companyName.charAt(0)}
-                                                </div>
-                                                <div className="ml-4">
-                                                    <div className="text-sm font-medium text-gray-900">{payment.companyName}</div>
-                                                    <div className="text-sm text-gray-500">{payment.customerName}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div>
-                                                <div className="text-sm font-medium text-gray-900">{payment.packageName}</div>
-                                                <span className={cn(
-                                                    "inline-flex px-2 py-0.5 rounded text-xs font-medium",
-                                                    subscriptionConfig[payment.subscriptionType].color
-                                                )}>
-                                                    {subscriptionConfig[payment.subscriptionType].label}
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="text-sm font-bold text-gray-900">
-                                                {payment.amount > 0 ? formatCurrency(payment.amount) : "Ücretsiz"}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                                                <MethodIcon className="h-4 w-4" />
-                                                {methodConfig[payment.method].label}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={cn(
-                                                "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium",
-                                                statusConfig[payment.status].color
-                                            )}>
-                                                <StatusIcon className="h-3 w-3" />
-                                                {statusConfig[payment.status].label}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {payment.date}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {payment.invoiceNo}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <div className="flex items-center justify-end gap-2">
-                                                <button
-                                                    onClick={() => setSelectedPayment(payment)}
-                                                    className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-                                                    title="Detay"
-                                                >
-                                                    <Eye className="h-4 w-4" />
-                                                </button>
-                                                {payment.status === "completed" && (
-                                                    <button
-                                                        className="p-1.5 rounded-lg text-gray-400 hover:text-orange-600 hover:bg-orange-50 transition-colors"
-                                                        title="İade Et"
-                                                    >
-                                                        <RefreshCw className="h-4 w-4" />
-                                                    </button>
-                                                )}
-                                                {payment.status === "pending" && (
-                                                    <button
-                                                        className="p-1.5 rounded-lg text-gray-400 hover:text-green-600 hover:bg-green-50 transition-colors"
-                                                        title="Onayla"
-                                                    >
-                                                        <CheckCircle className="h-4 w-4" />
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </td>
+                    {/* Filtreler */}
+                    <div className="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-4 mb-6">
+                        <div className="flex flex-wrap gap-4">
+                            <div className="flex-1 min-w-[250px]">
+                                <div className="relative">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                    <input
+                                        type="text"
+                                        placeholder="Müşteri, şirket veya fatura no ara..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                            </div>
+                            <select
+                                value={filterStatus}
+                                onChange={(e) => setFilterStatus(e.target.value as PaymentStatus | "all")}
+                                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="all">Tüm Durumlar</option>
+                                <option value="completed">Tamamlandı</option>
+                                <option value="pending">Beklemede</option>
+                                <option value="failed">Başarısız</option>
+                                <option value="refunded">İade Edildi</option>
+                            </select>
+                            <select
+                                value={filterMethod}
+                                onChange={(e) => setFilterMethod(e.target.value as PaymentMethod | "all")}
+                                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="all">Tüm Yöntemler</option>
+                                <option value="credit_card">Kredi Kartı</option>
+                                <option value="bank_transfer">Havale/EFT</option>
+                                <option value="iyzico">iyzico</option>
+                                <option value="paytr">PayTR</option>
+                            </select>
+                            <select
+                                value={dateRange}
+                                onChange={(e) => setDateRange(e.target.value)}
+                                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="today">Bugün</option>
+                                <option value="this_week">Bu Hafta</option>
+                                <option value="this_month">Bu Ay</option>
+                                <option value="last_month">Geçen Ay</option>
+                                <option value="this_year">Bu Yıl</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Ödeme Tablosu */}
+                    <div className="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 overflow-hidden">
+                        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                            <h3 className="text-lg font-semibold text-gray-900">Ödeme İşlemleri</h3>
+                            <span className="text-sm text-gray-500">{filteredPayments.length} işlem</span>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full divide-y divide-gray-200">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Müşteri</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paket</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tutar</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Yöntem</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Durum</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tarih</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fatura No</th>
+                                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">İşlem</th>
                                     </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* Pagination */}
-                <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
-                    <p className="text-sm text-gray-500">
-                        Toplam <span className="font-medium">{filteredPayments.length}</span> işlem gösteriliyor
-                    </p>
-                    <div className="flex items-center gap-2">
-                        <button className="p-2 rounded-lg border border-gray-300 text-gray-500 hover:bg-gray-50 disabled:opacity-50">
-                            <ChevronLeft className="h-4 w-4" />
-                        </button>
-                        <span className="px-3 py-1 rounded-lg bg-blue-600 text-white text-sm font-medium">1</span>
-                        <button className="px-3 py-1 rounded-lg text-gray-600 hover:bg-gray-100 text-sm">2</button>
-                        <button className="px-3 py-1 rounded-lg text-gray-600 hover:bg-gray-100 text-sm">3</button>
-                        <button className="p-2 rounded-lg border border-gray-300 text-gray-500 hover:bg-gray-50">
-                            <ChevronRight className="h-4 w-4" />
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            {/* Ödeme Detay Modalı */}
-            {selectedPayment && (
-                <div
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-                    onClick={() => setSelectedPayment(null)}
-                >
-                    <div
-                        className="w-full max-w-lg bg-white rounded-xl shadow-xl overflow-hidden"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50 flex items-center justify-between">
-                            <div>
-                                <h3 className="text-lg font-semibold text-gray-900">Ödeme Detayı</h3>
-                                <p className="text-sm text-gray-500">{selectedPayment.id}</p>
-                            </div>
-                            <button
-                                onClick={() => setSelectedPayment(null)}
-                                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                            >
-                                <XCircle className="h-5 w-5 text-gray-400" />
-                            </button>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {filteredPayments.map((payment) => {
+                                        const StatusIcon = statusConfig[payment.status].icon;
+                                        const MethodIcon = methodConfig[payment.method].icon;
+                                        return (
+                                            <tr key={payment.id} className="hover:bg-gray-50 transition-colors">
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div className="flex items-center">
+                                                        <div className="flex-shrink-0 h-10 w-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">
+                                                            {payment.companyName.charAt(0)}
+                                                        </div>
+                                                        <div className="ml-4">
+                                                            <div className="text-sm font-medium text-gray-900">{payment.companyName}</div>
+                                                            <div className="text-sm text-gray-500">{payment.customerName}</div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div>
+                                                        <div className="text-sm font-medium text-gray-900">{payment.packageName}</div>
+                                                        <span className={cn(
+                                                            "inline-flex px-2 py-0.5 rounded text-xs font-medium",
+                                                            subscriptionConfig[payment.subscriptionType].color
+                                                        )}>
+                                                            {subscriptionConfig[payment.subscriptionType].label}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <span className="text-sm font-bold text-gray-900">
+                                                        {payment.amount > 0 ? formatCurrency(payment.amount) : "Ücretsiz"}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                        <MethodIcon className="h-4 w-4" />
+                                                        {methodConfig[payment.method].label}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <span className={cn(
+                                                        "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium",
+                                                        statusConfig[payment.status].color
+                                                    )}>
+                                                        <StatusIcon className="h-3 w-3" />
+                                                        {statusConfig[payment.status].label}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {payment.date}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {payment.invoiceNo}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <button
+                                                            onClick={() => setSelectedPayment(payment)}
+                                                            className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                                                            title="Detay"
+                                                        >
+                                                            <Eye className="h-4 w-4" />
+                                                        </button>
+                                                        {payment.status === "completed" && (
+                                                            <button
+                                                                className="p-1.5 rounded-lg text-gray-400 hover:text-orange-600 hover:bg-orange-50 transition-colors"
+                                                                title="İade Et"
+                                                            >
+                                                                <RefreshCw className="h-4 w-4" />
+                                                            </button>
+                                                        )}
+                                                        {payment.status === "pending" && (
+                                                            <button
+                                                                className="p-1.5 rounded-lg text-gray-400 hover:text-green-600 hover:bg-green-50 transition-colors"
+                                                                title="Onayla"
+                                                            >
+                                                                <CheckCircle className="h-4 w-4" />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
                         </div>
-                        <div className="p-6 space-y-4">
-                            {/* Müşteri Bilgisi */}
-                            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-                                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
-                                    {selectedPayment.companyName.charAt(0)}
-                                </div>
-                                <div>
-                                    <p className="font-semibold text-gray-900">{selectedPayment.companyName}</p>
-                                    <p className="text-sm text-gray-500">{selectedPayment.customerName} • {selectedPayment.customerEmail}</p>
-                                </div>
-                            </div>
 
-                            {/* Ödeme Detayları */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="p-4 bg-gray-50 rounded-lg">
-                                    <p className="text-sm text-gray-500 mb-1">Tutar</p>
-                                    <p className="text-xl font-bold text-gray-900">
-                                        {selectedPayment.amount > 0 ? formatCurrency(selectedPayment.amount) : "Ücretsiz"}
-                                    </p>
-                                </div>
-                                <div className="p-4 bg-gray-50 rounded-lg">
-                                    <p className="text-sm text-gray-500 mb-1">Durum</p>
-                                    <span className={cn(
-                                        "inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-medium",
-                                        statusConfig[selectedPayment.status].color
-                                    )}>
-                                        {statusConfig[selectedPayment.status].label}
-                                    </span>
-                                </div>
-                                <div className="p-4 bg-gray-50 rounded-lg">
-                                    <p className="text-sm text-gray-500 mb-1">Paket</p>
-                                    <p className="font-medium text-gray-900">{selectedPayment.packageName}</p>
-                                </div>
-                                <div className="p-4 bg-gray-50 rounded-lg">
-                                    <p className="text-sm text-gray-500 mb-1">Ödeme Yöntemi</p>
-                                    <p className="font-medium text-gray-900">{methodConfig[selectedPayment.method].label}</p>
-                                </div>
-                                <div className="p-4 bg-gray-50 rounded-lg">
-                                    <p className="text-sm text-gray-500 mb-1">Tarih</p>
-                                    <p className="font-medium text-gray-900">{selectedPayment.date}</p>
-                                </div>
-                                <div className="p-4 bg-gray-50 rounded-lg">
-                                    <p className="text-sm text-gray-500 mb-1">Fatura No</p>
-                                    <p className="font-medium text-gray-900">{selectedPayment.invoiceNo}</p>
-                                </div>
+                        {/* Pagination */}
+                        <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+                            <p className="text-sm text-gray-500">
+                                Toplam <span className="font-medium">{filteredPayments.length}</span> işlem gösteriliyor
+                            </p>
+                            <div className="flex items-center gap-2">
+                                <button className="p-2 rounded-lg border border-gray-300 text-gray-500 hover:bg-gray-50 disabled:opacity-50">
+                                    <ChevronLeft className="h-4 w-4" />
+                                </button>
+                                <span className="px-3 py-1 rounded-lg bg-blue-600 text-white text-sm font-medium">1</span>
+                                <button className="px-3 py-1 rounded-lg text-gray-600 hover:bg-gray-100 text-sm">2</button>
+                                <button className="px-3 py-1 rounded-lg text-gray-600 hover:bg-gray-100 text-sm">3</button>
+                                <button className="p-2 rounded-lg border border-gray-300 text-gray-500 hover:bg-gray-50">
+                                    <ChevronRight className="h-4 w-4" />
+                                </button>
                             </div>
-                        </div>
-                        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex gap-3">
-                            {selectedPayment.status === "completed" && (
-                                <button className="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700 transition-colors">
-                                    İade Et
-                                </button>
-                            )}
-                            {selectedPayment.status === "pending" && (
-                                <button className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
-                                    Onayla
-                                </button>
-                            )}
-                            <button
-                                onClick={() => setSelectedPayment(null)}
-                                className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors"
-                            >
-                                Kapat
-                            </button>
                         </div>
                     </div>
-                </div>
+
+                    {/* Ödeme Detay Modalı */}
+                    {selectedPayment && (
+                        <div
+                            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+                            onClick={() => setSelectedPayment(null)}
+                        >
+                            <div
+                                className="w-full max-w-lg bg-white rounded-xl shadow-xl overflow-hidden"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50 flex items-center justify-between">
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-gray-900">Ödeme Detayı</h3>
+                                        <p className="text-sm text-gray-500">{selectedPayment.id}</p>
+                                    </div>
+                                    <button
+                                        onClick={() => setSelectedPayment(null)}
+                                        className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                                    >
+                                        <XCircle className="h-5 w-5 text-gray-400" />
+                                    </button>
+                                </div>
+                                <div className="p-6 space-y-4">
+                                    {/* Müşteri Bilgisi */}
+                                    <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
+                                            {selectedPayment.companyName.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold text-gray-900">{selectedPayment.companyName}</p>
+                                            <p className="text-sm text-gray-500">{selectedPayment.customerName} • {selectedPayment.customerEmail}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Ödeme Detayları */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="p-4 bg-gray-50 rounded-lg">
+                                            <p className="text-sm text-gray-500 mb-1">Tutar</p>
+                                            <p className="text-xl font-bold text-gray-900">
+                                                {selectedPayment.amount > 0 ? formatCurrency(selectedPayment.amount) : "Ücretsiz"}
+                                            </p>
+                                        </div>
+                                        <div className="p-4 bg-gray-50 rounded-lg">
+                                            <p className="text-sm text-gray-500 mb-1">Durum</p>
+                                            <span className={cn(
+                                                "inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-medium",
+                                                statusConfig[selectedPayment.status].color
+                                            )}>
+                                                {statusConfig[selectedPayment.status].label}
+                                            </span>
+                                        </div>
+                                        <div className="p-4 bg-gray-50 rounded-lg">
+                                            <p className="text-sm text-gray-500 mb-1">Paket</p>
+                                            <p className="font-medium text-gray-900">{selectedPayment.packageName}</p>
+                                        </div>
+                                        <div className="p-4 bg-gray-50 rounded-lg">
+                                            <p className="text-sm text-gray-500 mb-1">Ödeme Yöntemi</p>
+                                            <p className="font-medium text-gray-900">{methodConfig[selectedPayment.method].label}</p>
+                                        </div>
+                                        <div className="p-4 bg-gray-50 rounded-lg">
+                                            <p className="text-sm text-gray-500 mb-1">Tarih</p>
+                                            <p className="font-medium text-gray-900">{selectedPayment.date}</p>
+                                        </div>
+                                        <div className="p-4 bg-gray-50 rounded-lg">
+                                            <p className="text-sm text-gray-500 mb-1">Fatura No</p>
+                                            <p className="font-medium text-gray-900">{selectedPayment.invoiceNo}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex gap-3">
+                                    {selectedPayment.status === "completed" && (
+                                        <button className="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700 transition-colors">
+                                            İade Et
+                                        </button>
+                                    )}
+                                    {selectedPayment.status === "pending" && (
+                                        <button className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
+                                            Onayla
+                                        </button>
+                                    )}
+                                    <button
+                                        onClick={() => setSelectedPayment(null)}
+                                        className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors"
+                                    >
+                                        Kapat
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </>
             )}
         </PageContainer>
     );
