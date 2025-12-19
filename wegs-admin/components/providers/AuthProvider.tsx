@@ -46,11 +46,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, [isAuthenticated, pathname, isLoading, router]);
 
     const login = async (email: string, password: string): Promise<boolean> => {
-        // Simulate API call - accept any credentials for demo
+        // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        // Mock validation
-        if (email && password) {
+        // Only allow login with the correct password
+        const ADMIN_PASSWORD = "pIG#J4DgB$1S";
+
+        if (email && password === ADMIN_PASSWORD) {
             const mockUser = {
                 name: email.split("@")[0].charAt(0).toUpperCase() + email.split("@")[0].slice(1),
                 email: email,
